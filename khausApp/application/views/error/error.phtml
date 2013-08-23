@@ -1,0 +1,26 @@
+<div class="alert alert-block alert-error fade in" style="margin:15px">
+    <button type="button" class="close" data-dismiss="alert">×</button>
+    <h4 style="padding:10px 0px" class="alert-heading"><i class="icon-warning-sign"></i> Error <?php echo $this->code; ?> <i class="icon-double-angle-right"></i> <?php echo $this->message; ?></h4>
+    <h5><?php echo $this->subWarning; ?></h5>
+    <p>
+        <div>
+            <i class="icon-paper-clip"></i>
+            <?php echo 'Linea ' . $this->line . ' ' . $this->file; ?>
+        </div>
+        <?php 
+        foreach ($this->trace as $value) {
+            $location = isset($value['class']) && isset($value['function']) ?
+                sprintf('%s::%s', $value['class'], $value['function']) :
+                $value['args'][0];
+            ?>
+            <div>
+                <i class="icon-paper-clip"></i>
+                <?php echo 'Linea ' . $value['line'] . ' ' . $location; ?>
+            </div><?php
+        } ?>
+    </p>
+    <p style="padding:10px 0px">
+        <a class="btn btn-danger" href="javascript:window.location.href=window.location.href">Volver a intentar</a>
+        <a class="btn" href="">Ir al inicio</a>
+    </p>
+</div>
