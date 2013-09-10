@@ -17,6 +17,7 @@ class Khaus_Pattern_ActiveRecord
     private $_db;
     private $_tableName;
     private $_innerJoins;
+    private $_outerJoins;
     private $_filter;
     private $_order;
     private $_groupBy;
@@ -74,6 +75,7 @@ class Khaus_Pattern_ActiveRecord
                     $newData[$key] = $this->_db->quote((string) $value);
                 }
             }
+            $filter = preg_replace('/("|\')%([0-9]+?)\$s("|\')/i', '%$2$s', $filter);
             $filter = str_replace(array('"%s"', "'%s'"), '%s', $filter);
             $filter = vsprintf($filter, $newData);
         }
@@ -233,6 +235,23 @@ class Khaus_Pattern_ActiveRecord
     {
         foreach ($newTables as $tableName => $onCondition) {
             $this->_innerJoins[$tableName] = (string) $onCondition;
+        }
+        return $this;
+    }
+
+    public function outerJoin($direction, array $newTables)
+    {
+        $direction = strtoupper($direction);
+        if ($direction == 'LEFT' || $direction == 'RIGHT') {
+            foreach ($newTables as $tableName => $onCondition) {
+                $outer = new stdClass;
+                $outer->tableName = (string) $tableName;
+                $outer->onCondition = (string) $onCondition;
+                $outer->direction = (string) $direction;
+                $this->_outerJoins[] = $outer;
+            }
+        } else {
+            throw new Khaus_Pattern_Exception('Direcci&oacute;n del JOIN inv&aacute;lida');
         }
         return $this;
     }
@@ -594,6 +613,13 @@ class Khaus_Pattern_ActiveRecord
             foreach ($this->_innerJoins as $tableName => $onCondition) {
                 $statement .= "INNER JOIN $tableName ";
                 $statement .= "ON $onCondition ";
+            }
+        }
+        if (!empty($this->_outerJoins)) {
+            foreach ($this->_outerJoins as $outerObject) {
+                $statement .= $outerObject->direction . " OUTER JOIN ";
+                $statement .= $outerObject->tableName . " ON ";
+                $statement .= $outerObject->onCondition . " ";
             }
         }
         if (!empty($this->_filter)) {

@@ -1,10 +1,10 @@
 <?php
 /**
- * Khaus Framework (https://github.com/khausoft/khaus)
+ * Khaus Framework (http://github.com/niucode/khaus)
  *
- * @link https://github.com/khausoft/khaus for the canonical source repository
- * @copyright Copyright (c) 2013 rhyudek1. (https://github.com/khausoft/khaus)
- * @license https://github.com/khausoft/khaus New BSD License
+ * @link http://github.com/niucode/khaus for the canonical source repository
+ * @copyright Copyright (c) 2013 rhyudek1. (https://github.com/niucode/khaus)
+ * @license https://github.com/Niucode/khaus/blob/master/LICENSE.txt New BSD License
  */
 
 /*------------------------------------*

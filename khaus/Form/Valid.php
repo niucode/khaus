@@ -23,6 +23,8 @@ class Khaus_Form_Valid
     const VALIDATE_DATE = 2;
     const VALIDATE_EMAIL = 4;
     const VALIDATE_URL = 8;
+    const VALIDATE_NUMERIC = 16;
+    const VALIDATE_NUMERIC_POSITIVE = 32;
 
     public function __construct(array $method)
     {
@@ -68,6 +70,16 @@ class Khaus_Form_Valid
                         }
                         if (($validation & self::VALIDATE_URL) != 0) {
                             if (!$this->_validateUrl($this->_vars[$name])) {
+                                $this->_errors[$name] = $errorMessage;
+                            }
+                        }
+                        if (($validation & self::VALIDATE_NUMERIC) != 0) {
+                            if (!$this->_validateNumeric($this->_vars[$name])) {
+                                $this->_errors[$name] = $errorMessage;
+                            }
+                        }
+                        if (($validation & self::VALIDATE_NUMERIC_POSITIVE) != 0) {
+                            if (!$this->_validateNumericPositive($this->_vars[$name])) {
                                 $this->_errors[$name] = $errorMessage;
                             }
                         }
@@ -123,6 +135,16 @@ class Khaus_Form_Valid
     {
         return preg_match('/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6}).*\/?$/i', $element);
     }
+
+    private function _validateNumeric($element)
+    {
+        return is_numeric($element);
+    }
+
+    private function _validateNumericPositive($element)
+    {
+        return preg_match('/^[0-9]+$/', $element);
+    }
     
     public function isEmpty()
     {
@@ -158,7 +180,7 @@ class Khaus_Form_Valid
     public function printJsonSuccess($message)
     {
         $json = array();
-        $json['khausFormResponse']['alert-success'] = $message;
+        $json['khausFormResponse']['success'] = $message;
         echo json_encode((object) $json);
         exit;
     }
@@ -166,7 +188,7 @@ class Khaus_Form_Valid
     public function printJsonWarning($message)
     {
         $json = array();
-        $json['khausFormResponse']['alert-warning'] = $message;
+        $json['khausFormResponse']['warning'] = $message;
         echo json_encode((object) $json);
         exit;
     }
@@ -174,7 +196,7 @@ class Khaus_Form_Valid
     public function printJsonDanger($message)
     {
         $json = array();
-        $json['khausFormResponse']['alert-danger'] = $message;
+        $json['khausFormResponse']['danger'] = $message;
         echo json_encode((object) $json);
         exit;
     }
@@ -182,7 +204,7 @@ class Khaus_Form_Valid
     public function printJsonInfo($message)
     {
         $json = array();
-        $json['khausFormResponse']['alert-info'] = $message;
+        $json['khausFormResponse']['info'] = $message;
         echo json_encode((object) $json);
         exit;
     }
