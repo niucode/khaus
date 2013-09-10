@@ -8,23 +8,21 @@
  *
  * @category    Khaus
  * @package     Khaus_Form
- * @version     1:20121108
+ * @version     1:20130910
  */
 
 class Khaus_Form_Valid
 {
-    private $_vars = array();
-
-    private $_errors = array();
+    private $_vars                  = array();
+    private $_errors                = array();
+    private $_requiredValues        = array();
     
-    private $_requiredValues = array();
-    
-    const VALIDATE_RUT = 1;
-    const VALIDATE_DATE = 2;
-    const VALIDATE_EMAIL = 4;
-    const VALIDATE_URL = 8;
-    const VALIDATE_NUMERIC = 16;
-    const VALIDATE_NUMERIC_POSITIVE = 32;
+    const VALIDATE_RUT              = 1;
+    const VALIDATE_DATE             = 2;
+    const VALIDATE_EMAIL            = 3;
+    const VALIDATE_URL              = 4;
+    const VALIDATE_NUMERIC          = 5;
+    const VALIDATE_NUMERIC_POSITIVE = 6;
 
     public function __construct(array $method)
     {
@@ -36,57 +34,57 @@ class Khaus_Form_Valid
     public function __call($name, $arguments)
     {
         if (isset($this->_vars[$name])) {
+            // if: el nombre del parametro existe como valor en el formulario
+            $element = $this->_vars[$name];
             if (!isset($this->_errors[$name])) {
                 if (!empty($this->_requiredValues) 
                  && !in_array($name, $this->_requiredValues) 
-                 && (empty($this->_vars[$name]) && $this->_vars[$name] != '0')) {
+                 && (empty($element) && $element != '0')) {
                 } else {
                     list($validation, $errorMessage) = $arguments;
+
                     if (is_string($validation)) {
-                        if (!preg_match($validation, $this->_vars[$name])) {
+                        // si la validacion es un string se procesa como expresion regular
+                        if (!preg_match($validation, $element)) {
                             $this->_errors[$name] = $errorMessage;
                         }
-                    }
-                    if (is_callable($validation)) {
-                        if (!$validation($this->_vars[$name])) {
+
+                    } else if (is_callable($validation)) {
+                        // si la validacion es una funcion se ejecuta la funcion
+                        if (!(boolean) $validation($element)) {
                             $this->_errors[$name] = $errorMessage;
                         }
-                    }
-                    if (is_int($validation)) {
-                        if (($validation & self::VALIDATE_RUT) != 0) {
-                            if (!$this->_validateRUT($this->_vars[$name])) {
-                                $this->_errors[$name] = $errorMessage;
-                            }
+
+                    } else if (is_int($validation)) {
+                        // si la validacion es un integer
+                        $valid = true;
+                        switch ($validation) {
+                            case self::VALIDATE_RUT:
+                                $valid = Khaus_Helper_Validator::rut($element);
+                                break;
+                            case self::VALIDATE_DATE:
+                                $valid = Khaus_Helper_Validator::datetime($element);
+                                break;
+                            case self::VALIDATE_EMAIL:
+                                $valid = Khaus_Helper_Validator::email($element);
+                                break;
+                            case self::VALIDATE_URL:
+                                $valid = Khaus_Helper_Validator::uri($element);
+                                break;
+                            case self::VALIDATE_NUMERIC:
+                                $valid = Khaus_Helper_Validator::numeric($element);
+                                break;
+                            case self::VALIDATE_NUMERIC_POSITIVE:
+                                $valid = Khaus_Helper_Validator::numericPositive($element);
+                                break;
                         }
-                        if (($validation & self::VALIDATE_DATE) != 0) {
-                            if (!$this->_validateDate($this->_vars[$name])) {
-                                $this->_errors[$name] = $errorMessage;
-                            }
+                        if (!$valid) {
+                            $this->_errors[$name] = $errorMessage;
                         }
-                        if (($validation & self::VALIDATE_EMAIL) != 0) {
-                            if (!$this->_validateEmail($this->_vars[$name])) {
-                                $this->_errors[$name] = $errorMessage;
-                            }
-                        }
-                        if (($validation & self::VALIDATE_URL) != 0) {
-                            if (!$this->_validateUrl($this->_vars[$name])) {
-                                $this->_errors[$name] = $errorMessage;
-                            }
-                        }
-                        if (($validation & self::VALIDATE_NUMERIC) != 0) {
-                            if (!$this->_validateNumeric($this->_vars[$name])) {
-                                $this->_errors[$name] = $errorMessage;
-                            }
-                        }
-                        if (($validation & self::VALIDATE_NUMERIC_POSITIVE) != 0) {
-                            if (!$this->_validateNumericPositive($this->_vars[$name])) {
-                                $this->_errors[$name] = $errorMessage;
-                            }
-                        }
-                    }
-                    if (is_array($validation)) {
+                    } else if (is_array($validation)) {
+                        // si la validacion es un array @deprecated
                         list($min, $max) = $validation;
-                        $varlen = strlen($this->_vars[$name]);
+                        $varlen = strlen($element);
                         if ($varlen < $min || $varlen > $max) {
                             $this->_errors[$name] = $errorMessage;
                         }
@@ -106,44 +104,6 @@ class Khaus_Form_Valid
         foreach ($arguments as $value) {
             $this->$value('/.+/i', 'El campo es obligatorio');
         }
-    }
-    
-    private function _validateRUT($element)
-    {
-        $rut = str_replace(array('.', '-'), '', $element);
-        if (preg_match('/^(\d{1,8})(\d|k|K)$/', $rut, $group)){
-            $acum = 1;
-            $rut = $group[1];
-            for ($m = 0; $rut != 0; $rut /= 10) {
-                $acum = ($acum + $rut % 10 * (9 - $m++ % 6)) % 11;
-            }
-            return chr($acum ? $acum + 47 : 75) == strtoupper($group[2]);
-        }
-    }
-    
-    private function _validateDate($element)
-    {
-        return strtotime($element);
-    }
-    
-    private function _validateEmail($element)
-    {
-        return preg_match('/^[a-z0-9._-]+@(?:[a-z0-9-]+\.)+[a-z]{2,6}$/i', $element);
-    }
-    
-    private function _validateUrl($element)
-    {
-        return preg_match('/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6}).*\/?$/i', $element);
-    }
-
-    private function _validateNumeric($element)
-    {
-        return is_numeric($element);
-    }
-
-    private function _validateNumericPositive($element)
-    {
-        return preg_match('/^[0-9]+$/', $element);
     }
     
     public function isEmpty()
