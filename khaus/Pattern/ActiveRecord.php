@@ -239,6 +239,24 @@ class Khaus_Pattern_ActiveRecord
         return $this;
     }
 
+    /**
+     * Enlaza multiples tablas con OUTER JOIN
+     *
+     * Con la instruccion de SQL, OUTER JOIN enlaza dos o mas tablas
+     * entregando la dirección del JOIN y un array asociativo como parametros, 
+     * en este array se debe entregar como llave el nombre de la segunda tabla y como valor
+     * la igualdad de las columnas
+     * @example
+     * # obtener datos de dos tablas enlazadas
+     * $this->activeRecord('tabla1')
+     *      ->outerJoin('left', array('tabla2' => 'tabla1.primaryKey = tabla2.foreignKey'))
+     *      ->get('tabla1.name', 'table2.comments');
+     * 
+     * @access public
+     * @param  string $direction direccion del outer join
+     * @param  array  $newTables [description]
+     * @return Khaus_Pattern_ActiveRecord
+     */
     public function outerJoin($direction, array $newTables)
     {
         $direction = strtoupper($direction);
