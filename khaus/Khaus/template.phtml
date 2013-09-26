@@ -14,67 +14,67 @@
         <title>Khaus Framework Admin</title>
     </head>
     <body>
-        <div class="container">
-            <h1 class="text-center" style="padding:25px 0px"><?php echo $this->projectName; ?> &copy; Khaus Framework <?php echo date('Y'); ?></h1>
-            <div class="span12">
+    <div class="container">
+        <h1 class="text-center"><?php echo $this->projectName; ?> &copy; Khaus Framework <?php echo date('Y'); ?></h1>
+        <div class="row">
+            <div class="col-lg-6 col-lg-offset-3">
                 <form action="" method="post" class="form-horizontal">
-                    <div class="control-group">
-                        <div class="controls">
-                            <input type="text" class="span6" autocomplete="off" placeholder="Agrega un nuevo Controlador" name="controllerName" required value="" pattern="[a-zA-Z][a-z0-9]{0,25}">
-                            <button type="submit" name="add_controller" class="btn btn-info">Agregar</button>
-                        </div>
+                    <div class="form-group">
+                        <label for="controller" class="label-control">Agregar un nuevo controller</label>
+                        <input type="text" class="form-control" id="controller" name="controller">
+                    </div>
+                    <div class="form-group text-right">
+                        <input type="sumit" class="btn btn-primary" value="Agregar">
                     </div>
                 </form>
             </div>
-            <div class="row masonry" style="top:60px">
-                <?php foreach ($this->controllers as $controller => $actions): ?>
-                <div class="span4 masonryBox">
-                    <h5>
-                        <i class="icon-folder-open"></i> <?php echo $controller; ?>
-                        <form action="" method="post" style="display:inline">
-                            <input type="hidden" name="controllerName" value="<?php echo $controller; ?>" />
-                            <button type="submit" name="del_controller" class="close" title="Eliminar controlador" style="padding-right:5px" onclick="return confirm('Confirma la eliminaci&oacute;n del controller <?php echo $controller; ?>?');"><i class="icon-trash"></i></button>
-                        </form>
-                    </h5>
-                    <table class="table table-bordered table-hover">
-                        <?php foreach ($actions as $action): ?>
+        </div>
+        <div class="row">
+        <div class="col-lg-4">
+        <?php $counter = 1; ?>
+        <?php foreach ($this->controllers as $controller => $actions): ?>
+            <div>
+                <h5>
+                    <i class="icon-folder-open"></i> <?php echo $controller; ?>
+                    <form action="" method="post" style="display:inline">
+                        <input type="hidden" name="controllerName" value="<?php echo $controller; ?>" />
+                        <button type="submit" name="del_controller" class="close" title="Eliminar controlador" style="padding-right:5px" onclick="return confirm('Confirma la eliminaci&oacute;n del controller <?php echo $controller; ?>?');"><i class="icon-trash"></i></button>
+                    </form>
+                </h5>
+                <table class="table table-bordered table-hover">
+                    <?php foreach ($actions as $action): ?>
+                    <tr>
+                        <td><?php echo $action; ?></td>
+                        <td style="width:45px">
+                            <form action="" method="post" style="margin:0;padding:0;display:inline">
+                                <input type="hidden" name="controllerName" value="<?php echo $controller; ?>" />
+                                <input type="hidden" name="actionName" value="<?php echo $action; ?>" />
+                                <input type="submit" name="del_action" onclick="return confirm('Confirma la eliminaci&oacute;n del action <?php echo $action; ?>?');" class="btn btn-danger btn-xs" value="Borrar" />
+                            </form>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                    <form action="" method="post">
                         <tr>
-                            <td><?php echo $action; ?></td>
-                            <td style="width:45px">
-                                <form action="" method="post" style="margin:0;padding:0;display:inline">
-                                    <input type="hidden" name="controllerName" value="<?php echo $controller; ?>" />
-                                    <input type="hidden" name="actionName" value="<?php echo $action; ?>" />
-                                    <input type="submit" name="del_action" onclick="return confirm('Confirma la eliminaci&oacute;n del action <?php echo $action; ?>?');" class="btn btn-danger btn-mini" value="Borrar" />
-                                </form>
+                            <td>
+                                <input type="hidden" name="controllerName" value="<?php echo $controller; ?>" />
+                                <input type="text" name="actionName" pattern="[a-z][a-z0-9]{0,25}" required class="form-control" value="" style="margin-bottom:0px" placeholder="Nombre de la acci&oacute;n" />
+                            </td>
+                            <td>
+                                <input type="submit" name="add_action" class="btn btn-success btn-xs" title="Agragar acci&oacute;n" value="Nuevo" />
                             </td>
                         </tr>
-                        <?php endforeach; ?>
-                        <form action="" method="post">
-                            <tr>
-                                <td>
-                                    <input type="hidden" name="controllerName" value="<?php echo $controller; ?>" />
-                                    <input type="text" name="actionName" pattern="[a-z][a-z0-9]{0,25}" required class="input-medium" value="" style="margin-bottom:0px" placeholder="Nombre de la acci&oacute;n" />
-                                </td>
-                                <td>
-                                    <input type="submit" name="add_action" class="btn btn-inverse btn-mini" title="Agragar acci&oacute;n" value="Nuevo" />
-                                </td>
-                            </tr>
-                        </form>
-                    </table>
-                </div>
-                <?php endforeach; ?>
+                    </form>
+                </table>
             </div>
+        <?php if ($counter++ % $this->breakpoint == 0): ?>
         </div>
-        <script src="resources/js/jquery.min.js"></script>
-        <script src="resources/js/bootstrap.min.js"></script>
-        <script src="resources/js/jquery.masonry.min.js"></script>
-        <script>
-            $(document).ready(function(){
-                $('.masonry').masonry({
-                    itemSelector: '.masonryBox',
-                });
-            });
-        </script>
+        <div class="col-lg-4">
+        <?php endif; ?>
+
+        <?php endforeach; ?>
+        </div>
+    </div>
     </body>
 </html>
 <!-- 

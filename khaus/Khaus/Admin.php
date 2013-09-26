@@ -73,6 +73,7 @@ class Khaus_Khaus_Admin
         $template = new Khaus_Core_Template(dirname(__FILE__) . DIRECTORY_SEPARATOR . 'template.phtml');
         $template->view->controllers = $controllers;
         $template->view->projectName = Khaus_Config::application('title');
+        $template->view->breakpoint = round(count($controllers) / 3);
         echo $template->render();
     }
     

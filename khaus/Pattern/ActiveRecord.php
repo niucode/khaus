@@ -84,6 +84,35 @@ class Khaus_Pattern_ActiveRecord
         }
         return $this;
     }
+
+    /**
+     * Agrega un nuevo filtro del tipo IN
+     *
+     * Se entrega como primer parametro el nombre de la columna 
+     * a la cual se le realizara el filtrado, y como segundo parametro
+     * un arreglo con los datos que iran dentro de los parentesis de IN
+     * @example 
+     * # filtrar el contenido de la tabla
+     * $array = array(1, 2, 3);
+     * $activeRecord->filterIN('estado', $array); // WHERE estado IN (1, 2, 3);
+     * 
+     * @param  string $column nombre de la columna
+     * @param  array $groupParams arreglo unidimensional con los datos del IN
+     * @return Khaus_Pattern_ActiveRecord 
+     */
+    public function filterIN($column, array $groupParams)
+    {
+        foreach ($groupParams as $key => $value) {
+            if (!is_numeric($value)) {
+                $groupParams[$key] = $this->_db->quote((string) $value);
+            }
+        }
+        $filter = sprintf('%s IN (%s)', $column, implode(', ', $groupParams));
+        if (!in_array($filter, $this->_filter)) {
+            $this->_filter[] = $filter;
+        }
+        return $this;
+    }
     
     /**
      * Funcion deprecated, utilizar filter()
