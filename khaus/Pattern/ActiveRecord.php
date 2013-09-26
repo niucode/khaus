@@ -102,12 +102,16 @@ class Khaus_Pattern_ActiveRecord
      */
     public function filterIN($column, array $groupParams)
     {
-        foreach ($groupParams as $key => $value) {
-            if (!is_numeric($value)) {
-                $groupParams[$key] = $this->_db->quote((string) $value);
+        if (count($groupParams)) {
+            foreach ($groupParams as $key => $value) {
+                if (!is_numeric($value)) {
+                    $groupParams[$key] = $this->_db->quote((string) $value);
+                }
             }
+            $filter = sprintf('%s IN (%s)', $column, implode(', ', $groupParams));
+        } else {
+            $filter = sprintf('%s IN (\'\')', $column);
         }
-        $filter = sprintf('%s IN (%s)', $column, implode(', ', $groupParams));
         if (!in_array($filter, $this->_filter)) {
             $this->_filter[] = $filter;
         }
